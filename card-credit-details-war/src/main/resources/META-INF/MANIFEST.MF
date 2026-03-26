@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Main-Class: com.demo.card.CardDetailsWarApplication
+Implementation-Title: card-credit-details-war
+Implementation-Version: 1.0.0
+Implementation-Vendor: Demo Company
+Built-By: Demo Team
+Build-Jdk: 21
+Created-By: Maven Archiver
+Specification-Title: card-credit-details-war
+Specification-Version: 1.0.0
+Specification-Vendor: Demo Company
