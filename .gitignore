@@ -13,19 +13,6 @@ Thumbs.db
 *.war
 *.ear
 
-# Python virtual env and caches
-.venv/
-**/.venv/
-venv/
-env/
-**/__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Python local config
-.python-version
-
 # Secrets / local env
 .env
 **/.env
