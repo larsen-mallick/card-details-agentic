@@ -1,0 +1,263 @@
+{
+  "info": {
+    "name": "Card Details — Full Test Suite",
+    "_postman_id": "card-details-full-test-suite",
+    "description": "Tests for both the card-details service (port 8080) and the card-agent LangGraph4j service (port 8081). Demo card number is 123.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "cardDetailsBaseUrl", "value": "http://localhost:8080/card-details" },
+    { "key": "cardAgentBaseUrl",   "value": "http://localhost:8081/agent" },
+    { "key": "cardNo",             "value": "123" }
+  ],
+  "item": [
+    {
+      "name": "card-details service (port 8080)",
+      "item": [
+        {
+          "name": "Health check — App Status",
+          "request": {
+            "method": "GET",
+            "url": "{{cardDetailsBaseUrl}}/appStatus",
+            "description": "Confirms the service is up. Expected response: OK"
+          }
+        },
+        {
+          "name": "Card Summary",
+          "request": {
+            "method": "GET",
+            "url": "{{cardDetailsBaseUrl}}/{{cardNo}}/summary",
+            "description": "Returns a rolled-up summary (status, balance, limits, rewards)."
+          }
+        },
+        {
+          "name": "Card Status",
+          "request": {
+            "method": "GET",
+            "url": "{{cardDetailsBaseUrl}}/{{cardNo}}/status",
+            "description": "Returns the card state (ACTIVE / BLOCKED / CLOSED) and issuer details."
+          }
+        },
+        {
+          "name": "Credit Limits",
+          "request": {
+            "method": "GET",
+            "url": "{{cardDetailsBaseUrl}}/{{cardNo}}/limits",
+            "description": "Returns the total credit limit and cash advance limit."
+          }
+        },
+        {
+          "name": "Balance",
+          "request": {
+            "method": "GET",
+            "url": "{{cardDetailsBaseUrl}}/{{cardNo}}/balance",
+            "description": "Returns current balance, available credit, minimum due, and due date."
+          }
+        },
+        {
+          "name": "Rewards",
+          "request": {
+            "method": "GET",
+            "url": "{{cardDetailsBaseUrl}}/{{cardNo}}/rewards",
+            "description": "Returns reward points balance and tier."
+          }
+        },
+        {
+          "name": "Transactions (last 10 — default)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{cardDetailsBaseUrl}}/{{cardNo}}/transactions",
+              "host": ["{{cardDetailsBaseUrl}}"],
+              "path": ["{{cardNo}}", "transactions"]
+            },
+            "description": "Returns the last 10 transactions."
+          }
+        },
+        {
+          "name": "Transactions (last 3)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{cardDetailsBaseUrl}}/{{cardNo}}/transactions?lastN=3",
+              "host": ["{{cardDetailsBaseUrl}}"],
+              "path": ["{{cardNo}}", "transactions"],
+              "query": [{ "key": "lastN", "value": "3" }]
+            },
+            "description": "Returns only the last 3 transactions."
+          }
+        },
+        {
+          "name": "Statements (last 6 — default)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{cardDetailsBaseUrl}}/{{cardNo}}/statements",
+              "host": ["{{cardDetailsBaseUrl}}"],
+              "path": ["{{cardNo}}", "statements"]
+            },
+            "description": "Returns the last 6 monthly statements."
+          }
+        },
+        {
+          "name": "Statements (last 2)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{cardDetailsBaseUrl}}/{{cardNo}}/statements?lastN=2",
+              "host": ["{{cardDetailsBaseUrl}}"],
+              "path": ["{{cardNo}}", "statements"],
+              "query": [{ "key": "lastN", "value": "2" }]
+            },
+            "description": "Returns only the last 2 statements."
+          }
+        },
+        {
+          "name": "Account Health",
+          "request": {
+            "method": "GET",
+            "url": "{{cardDetailsBaseUrl}}/{{cardNo}}/health",
+            "description": "Returns composite health: GOOD / WATCH / RISK, utilisation %, days until due, and reasons list."
+          }
+        },
+        {
+          "name": "High-Value Transactions (threshold 1000, last 5 — default)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{cardDetailsBaseUrl}}/{{cardNo}}/high-value-transactions",
+              "host": ["{{cardDetailsBaseUrl}}"],
+              "path": ["{{cardNo}}", "high-value-transactions"]
+            },
+            "description": "Returns debit transactions above £1000 (default threshold)."
+          }
+        },
+        {
+          "name": "High-Value Transactions (threshold 500, last 10)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{cardDetailsBaseUrl}}/{{cardNo}}/high-value-transactions?threshold=500&lastN=10",
+              "host": ["{{cardDetailsBaseUrl}}"],
+              "path": ["{{cardNo}}", "high-value-transactions"],
+              "query": [
+                { "key": "threshold", "value": "500" },
+                { "key": "lastN",     "value": "10" }
+              ]
+            },
+            "description": "Returns debit transactions above £500, up to 10 results."
+          }
+        },
+        {
+          "name": "Next Best Action",
+          "request": {
+            "method": "GET",
+            "url": "{{cardDetailsBaseUrl}}/{{cardNo}}/next-best-action",
+            "description": "Returns a recommended action (e.g. PAY_MINIMUM_DUE), urgency (LOW/MEDIUM/HIGH), and a reason."
+          }
+        },
+        {
+          "name": "Agentic Query — Java keyword workflow",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{cardDetailsBaseUrl}}/agentic-query?cardNo={{cardNo}}&userRequest=Explain my credit utilisation",
+              "host": ["{{cardDetailsBaseUrl}}"],
+              "path": ["agentic-query"],
+              "query": [
+                { "key": "cardNo",      "value": "{{cardNo}}" },
+                { "key": "userRequest", "value": "Explain my credit utilisation" }
+              ]
+            },
+            "description": "Runs the Java-native 3-node workflow (IntakeNode → AnalystNode → ResolverNode) built into the card-details WAR."
+          }
+        }
+      ]
+    },
+    {
+      "name": "card-agent service (port 8081) — LangGraph4j + LLM",
+      "item": [
+        {
+          "name": "Credit Explanation",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{cardAgentBaseUrl}}/query?cardNo={{cardNo}}&userRequest=Explain my credit utilisation and how it affects my score",
+              "host": ["{{cardAgentBaseUrl}}"],
+              "path": ["query"],
+              "query": [
+                { "key": "cardNo",      "value": "{{cardNo}}" },
+                { "key": "userRequest", "value": "Explain my credit utilisation and how it affects my score" }
+              ]
+            },
+            "description": "LLM classifies as CREDIT_EXPLANATION. Agent fetches limits + balance, then generates an explanation."
+          }
+        },
+        {
+          "name": "Balance Query",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{cardAgentBaseUrl}}/query?cardNo={{cardNo}}&userRequest=What is my current balance and available credit?",
+              "host": ["{{cardAgentBaseUrl}}"],
+              "path": ["query"],
+              "query": [
+                { "key": "cardNo",      "value": "{{cardNo}}" },
+                { "key": "userRequest", "value": "What is my current balance and available credit?" }
+              ]
+            },
+            "description": "LLM classifies as BALANCE_QUERY. Agent fetches balance + limits."
+          }
+        },
+        {
+          "name": "Transaction Review",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{cardAgentBaseUrl}}/query?cardNo={{cardNo}}&userRequest=Show me my recent large transactions",
+              "host": ["{{cardAgentBaseUrl}}"],
+              "path": ["query"],
+              "query": [
+                { "key": "cardNo",      "value": "{{cardNo}}" },
+                { "key": "userRequest", "value": "Show me my recent large transactions" }
+              ]
+            },
+            "description": "LLM classifies as TRANSACTION_REVIEW. Agent fetches transactions + high-value transactions."
+          }
+        },
+        {
+          "name": "Payment Info",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{cardAgentBaseUrl}}/query?cardNo={{cardNo}}&userRequest=When is my payment due and how much is the minimum payment?",
+              "host": ["{{cardAgentBaseUrl}}"],
+              "path": ["query"],
+              "query": [
+                { "key": "cardNo",      "value": "{{cardNo}}" },
+                { "key": "userRequest", "value": "When is my payment due and how much is the minimum payment?" }
+              ]
+            },
+            "description": "LLM classifies as PAYMENT_INFO. Agent fetches statements + balance."
+          }
+        },
+        {
+          "name": "General Query",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{cardAgentBaseUrl}}/query?cardNo={{cardNo}}&userRequest=Is everything ok with my card account?",
+              "host": ["{{cardAgentBaseUrl}}"],
+              "path": ["query"],
+              "query": [
+                { "key": "cardNo",      "value": "{{cardNo}}" },
+                { "key": "userRequest", "value": "Is everything ok with my card account?" }
+              ]
+            },
+            "description": "LLM classifies as GENERAL. Agent returns health + next best action."
+          }
+        }
+      ]
+    }
+  ]
+}
